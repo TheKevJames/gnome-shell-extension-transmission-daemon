@@ -1,14 +1,15 @@
 repository:
   name: gnome-shell-extension-transmission-daemon
-  description: Gnome Shell Indicator for Transmission
+  description: gnome shell indicator for Transmission
   homepage: https://extensions.gnome.org/extension/365/transmission-daemon-indicator/
   private: false
 
   has_issues: true
   has_projects: false
   has_wiki: false
+  has_downloads: false
 
-  allow_merge_commit: true
+  allow_merge_commit: false
   allow_rebase_merge: true
   allow_squash_merge: true
 

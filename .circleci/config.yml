@@ -1,11 +1,9 @@
 version: 2
 
 jobs:
-  check:
+  lint:
     docker:
-      # https://github.com/docker-library/python/issues/155
-      # - image: python:3.6.2-alpine3.6
-      - image: python:3.6.2
+      - image: python:3.6.4
     steps:
       - checkout
       - run: pip install pre-commit
@@ -24,5 +22,5 @@ workflows:
   version: 2
   run-jobs:
     jobs:
-      - check
+      - lint
       - build

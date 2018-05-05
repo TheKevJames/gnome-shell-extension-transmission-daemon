@@ -1,8 +1,0 @@
-todo:
-    autoAssign: true
-    blobLines: 5
-    bodyKeyword: "BODY:"
-    caseSensitive: true
-    keyword: "TODO:"
-    label: false
-    reopenClosed: true
