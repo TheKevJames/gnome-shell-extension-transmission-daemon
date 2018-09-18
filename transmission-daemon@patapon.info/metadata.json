@@ -1,5 +1,5 @@
 {
-    "shell-version": ["3.20", "3.22", "3.24", "3.25", "3.26", "3.27", "3.28"],
+  "shell-version": ["3.20", "3.22", "3.24", "3.25", "3.26", "3.27", "3.28", "3.30"],
     "uuid": "transmission-daemon@patapon.info",
     "name": "Transmission Daemon Indicator",
     "url": "https://github.com/thekevjames/gnome-shell-extension-transmission-daemon",
