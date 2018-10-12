@@ -689,8 +689,13 @@ const TransmissionDaemonIndicator = new Lang.Class({
         let appSys = Shell.AppSystem.get_default();
         let app = appSys.lookup_app('transmission-gtk.desktop');
         let appWin = this.findAppWindow(app);
-        let workspace_index = global.workspace_manager.get_active_workspace_index();
-        let workspace = global.workspace_manager.get_active_workspace();
+        let workspaceManager;
+        if (global.screen)
+			workspaceManager = global.screen; // Mutter < 3.29
+		else
+			workspaceManager = global.workspace_manager; // Mutter >= 3.29
+        let workspace_index = workspaceManager.get_active_workspace_index();
+        let workspace = workspaceManager.get_active_workspace();
 
         if (app.is_on_workspace(workspace)) {
             if (appWin && global.display.focus_window == appWin) {
