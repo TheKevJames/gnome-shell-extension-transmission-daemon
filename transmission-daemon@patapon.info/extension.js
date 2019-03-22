@@ -443,7 +443,7 @@ const TransmissionDaemonIndicator = GObject.registerClass(
         this._indicatorBox = new St.BoxLayout();
 
         this._icon = new St.Icon({
-            icon_name: connectIcon,
+            gicon: getCustomIcon(connectIcon),
             style_class: 'system-status-icon',
         });
 
@@ -482,12 +482,12 @@ const TransmissionDaemonIndicator = GObject.registerClass(
 
     hide() {
         if (!this._always_show) {
-            this.actor.hide();
+            this.actor.visible = false;
         }
     }
 
     show() {
-        this.actor.show();
+        this.actor.visible = true;
     }
 
     updateOptions() {
@@ -534,7 +534,7 @@ const TransmissionDaemonIndicator = GObject.registerClass(
         this._state = type;
         this.removeTorrents();
 
-        this._icon.icon_name = errorIcon;
+        this._icon.gicon = getCustomIcon(errorIcon);
         this._status.text = '';
 
         this.menu.controls.setInfo(error);
@@ -543,7 +543,7 @@ const TransmissionDaemonIndicator = GObject.registerClass(
 
     connectionAvailable() {
         if (this._state != ErrorType.NO_ERROR) {
-            this._icon.icon_name = enabledIcon;
+            this._icon.gicon = getCustomIcon(enabledIcon);
             this._state = ErrorType.NO_ERROR;
             this.checkServer();
             this.show();
@@ -1463,6 +1463,8 @@ const ControlButton = class ControlButton {
             icon_size: icon_size,
         });
 
+        if (icon == 'turtle') this.icon.gicon = getCustomIcon(this.icon.icon_name);
+
         this.actor = new St.Button({
             style_class: 'modal-dialog-button button',
             child: this.icon,
@@ -1479,6 +1481,7 @@ const ControlButton = class ControlButton {
 
     setIcon(icon) {
         this.icon.icon_name = icon + "-symbolic";
+        if (icon == 'turtle') this.icon.gicon = getCustomIcon(this.icon.icon_name);
     }
 };
 
@@ -1628,12 +1631,9 @@ const TorrentsMenu = class TorrentsMenu extends PopupMenu.PopupMenu {
     }
 };
 
-
 function init(extensionMeta) {
     gsettings = Lib.getSettings(Me);
     Lib.initTranslations(Me);
-    let theme = imports.gi.Gtk.IconTheme.get_default();
-    theme.append_search_path(extensionMeta.path + "/icons");
 }
 
 function enable() {
@@ -1696,4 +1696,8 @@ function timeInterval(secs) {
         return m + ', ' + s;
     }
     return s;
+}
+
+function getCustomIcon(icon_name) {
+    return Gio.icon_new_for_string(Me.dir.get_child('icons').get_path() + "/" + icon_name + ".svg");
 }
