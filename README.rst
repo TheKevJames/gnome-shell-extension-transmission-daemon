@@ -4,7 +4,7 @@ gnome-shell-extension-transmission-daemon
 This is a Gnome Shell extension for monitoring a transmission-daemon or GTK app
 using its RPC interface.
 
-This extension supports Gnome Shell DE from version 3.4.
+This extension supports Gnome Shell DE from version 3.34.
 
 All credit for this project goes to the original author, Jean-Philippe Braun
 (`@eonpatapon`_). This project was forked since maintainance has been abandoned.

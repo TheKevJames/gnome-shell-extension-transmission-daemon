@@ -19,12 +19,12 @@ build: ${ZIPFILE}
 install: ${EXTDIR}/${NAME}
 ${EXTDIR}/${NAME}: ${NAME}/schemas/gschemas.compiled ${LOCALES_DST} ${NAME} Makefile
 	cp -r ${NAME} ${EXTDIR}/${NAME}
-	gnome-shell-extension-tool -e ${NAME}
+	gnome-extensions enable ${NAME}
 
 reinstall: uninstall install
 
 uninstall:
-	gnome-shell-extension-tool -d ${NAME}
+	gnome-extensions disable ${NAME}
 	rm -r ${EXTDIR}/${NAME}
 
 %.mo: %.po
