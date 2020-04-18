@@ -1373,7 +1373,6 @@ var TorrentsTopControls = GObject.registerClass({
     }
 
     hideAddEntry() {
-        transmissionDaemonIndicator.menu.actor.grab_key_focus();
         this.add_entry.text = "";
         this.add_entry.remove_style_pseudo_class('error');
         this.add_entry.remove_style_pseudo_class('inactive');
