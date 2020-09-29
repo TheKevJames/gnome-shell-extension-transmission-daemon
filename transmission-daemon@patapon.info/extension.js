@@ -1196,7 +1196,7 @@ var TorrentName = GObject.registerClass({
         });
 
         this.add(name_label);
-        this.add(this.box, { expand: true, x_fill: false, x_align: St.Align.END, });
+        this.add(this.box);
 
         this.updateButtons();
     }
@@ -1271,16 +1271,11 @@ var TorrentsControls = GObject.registerClass({
         });
 
         this.ctrl_box.add(this.ctrl_btns);
-        this.ctrl_box.add(this.ctrl_info, {
-            expand: true,
-            x_fill: false,
-            y_fill: false,
-            x_align: St.Align.END,
-        });
+        this.ctrl_box.add(this.ctrl_info);
 
-        this.vbox.add(this.ctrl_box, { expand: true, span: -1, });
+        this.vbox.add(this.ctrl_box);
 
-        this.add(this.vbox, { expand: true, span: -1, });
+        this.add(this.vbox);
     }
 
     setInfo(text) {
@@ -1352,12 +1347,12 @@ var TorrentsTopControls = GObject.registerClass({
                                          this.torrentAdd.bind(this));
         this.add_box.hide();
 
-        this.add_box.add(this.add_entry, { expand: true, });
+        this.add_box.add(this.add_entry);
         this.add_box.add(this.add_btn.actor);
 
         this.ctrl_info.text = _("Connecting...");
 
-        this.vbox.add(this.add_box, { expand: true, span: -1, });
+        this.vbox.add(this.add_box);
     }
 
     toggleAddEntry(button) {
