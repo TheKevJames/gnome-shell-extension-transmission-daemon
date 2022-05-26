@@ -1188,7 +1188,7 @@ var TorrentName = GObject.registerClass({
         this.box = new St.BoxLayout({
             vertical: false,
             style_class: 'torrent-controls',
-            x_expand: true, 
+            x_expand: true,
             x_align: Clutter.ActorAlign.END,
         });
 
@@ -1262,7 +1262,7 @@ var TorrentsControls = GObject.registerClass({
             x_expand: true,
         });
 
-        this.ctrl_box = new St.BoxLayout({ 
+        this.ctrl_box = new St.BoxLayout({
              vertical: false,
              x_expand: true,
         });

@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.2.0
     hooks:
     -   id: check-case-conflict
     -   id: check-executables-have-shebangs
@@ -42,22 +42,22 @@ repos:
         - -d missing-docstring
         - -d too-few-public-methods
 -   repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.1.10
+    rev: v1.2.0
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
 -   repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.6.0
+    rev: v3.1.0
     hooks:
     -   id: reorder-python-imports
         args: [--py37-plus]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.0
+    rev: v2.32.1
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.910-1
+    rev: v0.950
     hooks:
     -   id: mypy
         require_serial: True
@@ -69,11 +69,11 @@ repos:
         - --warn-unreachable
         exclude: tests/.*
 -   repo: https://github.com/asottile/yesqa
-    rev: v1.2.3
+    rev: v1.3.0
     hooks:
     -   id: yesqa
 -   repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v1.5.7
+    rev: v1.6.0
     hooks:
     -   id: autopep8
 -   repo: https://github.com/PyCQA/pydocstyle
@@ -104,7 +104,7 @@ repos:
 
 # java
 -   repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-    rev: v2.1.0
+    rev: v2.3.0
     hooks:
     -   id: pretty-format-java
         args: [--autofix]
@@ -122,14 +122,14 @@ repos:
 
 # terraform
 -   repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.52.0
+    rev: v1.72.1
     hooks:
     -   id: terraform_fmt
     -   id: terraform_validate
 
 # shell
 -   repo: https://github.com/lovesegfault/beautysh
-    rev: "v6.1.0"
+    rev: "v6.2.1"
     hooks:
     -   id: beautysh
 -   repo: https://github.com/openstack/bashate
@@ -141,6 +141,6 @@ repos:
     hooks:
     -   id: shell-lint
 -   repo: https://github.com/jumanjihouse/pre-commit-hooks
-    rev: 2.1.5
+    rev: 2.1.6
     hooks:
     -   id: script-must-not-have-extension
