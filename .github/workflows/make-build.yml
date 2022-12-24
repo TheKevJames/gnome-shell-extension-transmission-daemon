@@ -1,0 +1,21 @@
+name: make-build
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: install dependencies
+      run: |
+        apt-get update -qy
+        apt-get install -qy gettext libglib2.0-dev make zip
+    - uses: actions/checkout@v3
+    - name: make build
+      run: make build
