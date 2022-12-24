@@ -1,5 +1,4 @@
-name: make-build
-
+name: 'Build Extension'
 on:
   push:
     branches:
@@ -12,10 +11,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - name: install dependencies
       run: |
-        apt-get update -qy
-        apt-get install -qy gettext libglib2.0-dev make zip
-    - uses: actions/checkout@v3
-    - name: make build
-      run: make build
+        sudo apt-get update -qy
+        sudo apt-get install -qy gettext libglib2.0-dev make zip
+    - run: make build
