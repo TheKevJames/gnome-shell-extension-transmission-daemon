@@ -2,6 +2,9 @@ ci:
     autofix_commit_msg: 'refactor(lint): apply automatic lint fixes'
     autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
 
+default_language_version:
+    python: python3.11
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
@@ -25,18 +28,27 @@ repos:
 
 # rst
 -   repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
     -   id: rst-backticks
     -   id: rst-directive-colons
     -   id: rst-inline-touching-normal
+
+# json
+- repo: https://github.com/python-jsonschema/check-jsonschema
+  rev: 0.24.1
+  hooks:
+    - id: check-github-workflows
+    - id: check-renovate
+      additional_dependencies:
+      - pyjson5
 
 # javascript
 -   repo: https://github.com/pre-commit/mirrors-fixmyjs
     rev: v2.0.0
     hooks:
     -   id: fixmyjs
-# TODO: fix these lint issues
+# TODO: enable me
 # -   repo: https://github.com/pre-commit/mirrors-jshint
 #     rev: v2.13.6
 #     hooks:
