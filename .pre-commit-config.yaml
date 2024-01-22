@@ -1,55 +1,251 @@
 ci:
     autofix_commit_msg: 'refactor(lint): apply automatic lint fixes'
     autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
+    skip: [terraform_fmt, terraform_validate]
+
+default_install_hook_types:
+  - commit-msg
+  - pre-commit
 
 default_language_version:
     python: python3.11
 
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.1.0
     hooks:
-    -   id: check-case-conflict
-    -   id: check-executables-have-shebangs
-    -   id: check-json
-    -   id: check-merge-conflict
-    -   id: check-shebang-scripts-are-executable
-    -   id: check-symlinks
-    -   id: check-toml
-    -   id: check-vcs-permalinks
-    -   id: check-xml
-    -   id: check-yaml
+      - id: conventional-pre-commit
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-vcs-permalinks
+      - id: check-xml
+      - id: check-yaml
         args: [--allow-multiple-documents]
-    -   id: detect-private-key
-    -   id: end-of-file-fixer
-    -   id: mixed-line-ending
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
         args: [--fix=lf]
-    -   id: trailing-whitespace
+      - id: trailing-whitespace
 
-# rst
--   repo: https://github.com/pre-commit/pygrep-hooks
+# python
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-docstring-first
+      - id: debug-statements
+      - id: double-quote-string-fixer
+      - id: name-tests-test
+      - id: requirements-txt-fixer
+  - repo: https://github.com/PyCQA/pylint
+    rev: v3.0.3
+    hooks:
+    # TODO: pylint-import-modules support for pylint v3 (or alternative linter)
+      - id: pylint
+        args:
+          - --load-plugins=pylint.extensions.mccabe
+          - --max-complexity=10
+          - --max-line-length=79
+          - --max-module-lines=500
+          - --max-args=10
+          - --score=n
+          # TODO: narrow these down
+          - -d broad-except
+          - -d duplicate-code
+          - -d fixme
+          - -d import-error
+          - -d invalid-name
+          - -d locally-disabled
+          - -d missing-docstring
+          - -d too-few-public-methods
+          - -d try-except-raise
+          - -d ungrouped-imports  # conflicts with reorder-python-imports
+          - -d wrong-import-order  # conflicts with reorder-python-imports
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.4
+    hooks:
+      - id: remove-crlf
+      - id: remove-tabs
+        exclude: 'Makefile'
+  - repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.12.0
+    hooks:
+      - id: reorder-python-imports
+        args: [--py311-plus]
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+      - id: pyupgrade
+        args: [--py311-plus]
+  - repo: https://github.com/asottile/add-trailing-comma
+    rev: v3.1.0
+    hooks:
+      - id: add-trailing-comma
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        require_serial: True
+        # N.B. mypy requires an installed version of whatever third-party
+        # library it is asked to check against. In practice, that means
+        # whenever we see an error telling us to do so, we should add the
+        # relevant library to `additional_dependencies`.
+        # Note that some libraries keep their type hints in packages named
+        # `types-$lib` or `$lib-stubs`.
+        additional_dependencies: []
+        args:
+          - --show-error-codes
+          - --strict
+          - --strict-equality
+          - --warn-unreachable
+  - repo: https://github.com/asottile/yesqa
+    rev: v1.5.0
+    hooks:
+      - id: yesqa
+        # N.B. keep these in sync with flake8, otherwise yesqa will remove
+        # required noqa's related to these plugins
+        additional_dependencies: &flake8deps
+        - flake8-2020==1.8.1
+        - flake8-broken-line==1.0.0
+        - flake8-builtins==2.2.0
+        - flake8-commas==2.1.0
+        - flake8-comprehensions==3.14.0
+        - flake8-typing-imports==1.15.0
+  - repo: https://github.com/hhatto/autopep8
+    rev: v2.0.4
+    hooks:
+      - id: autopep8
+        args: [-a, -i, -p2]
+  - repo: https://github.com/PyCQA/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args:
+          - --ignore=D1,D203,D205,D212,D400,D401,D404,D407,D412,D413
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies: *flake8deps
+        args:
+          # https://www.flake8rules.com/
+          # E501: Line too long. Covered by autopep8.
+          # E741: Do not use variables named 'I', 'O', or 'l'.
+          # W503: Line break occurred before a binary operator. Breaks PEP8.
+          - --ignore=E501,E741,W503
+          - --min-python-version=3.11
+  - repo: https://github.com/dosisod/refurb
+    rev: v1.27.0
+    hooks:
+      - id: refurb
+        args:
+          - --python-version
+          - '3.11'
+  - repo: local
+    hooks:
+      - id: poetry-check
+        name: check pyproject.toml validity
+        description: 'Validate the structure of the pyproject.toml file'
+        entry: bash -c 'set -e; for toml in "$@"; do pushd ./${toml%pyproject.toml}; poetry check; popd; done' --
+        language: python
+        additional_dependencies:
+          - poetry>=1.5.0
+        pass_filenames: true
+        files: 'pyproject\.toml$'
+      - id: poetry-use-version-ranges
+        name: avoid using carets for version ranges
+        description: 'Avoid using carets for version ranges'
+        entry: '\^'
+        language: pygrep
+        types: [toml]
+        files: 'pyproject.toml$'
+      - id: pytest-fixtures-require-scope
+        name: ensure pytest fixture scopes are explicitly set
+        description: 'Ensure we explicitly set pytest fixture scopes'
+        entry: '@pytest\.fixture( |\n|(\(\)))'
+        language: pygrep
+        types: [python]
+  - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
-    -   id: rst-backticks
-    -   id: rst-directive-colons
-    -   id: rst-inline-touching-normal
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: python-use-type-annotations
+
+# rst
+      - id: rst-backticks
+      - id: rst-directive-colons
+      - id: rst-inline-touching-normal
 
 # json
-- repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.24.1
-  hooks:
-    - id: check-github-workflows
-    - id: check-renovate
-      additional_dependencies:
-      - pyjson5
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.27.3
+    hooks:
+      - id: check-github-workflows
+      - id: check-renovate
+        additional_dependencies:
+        - pyjson5
+
+# docker
+  - repo: https://github.com/AleksaC/hadolint-py
+    rev: v2.12.0.2
+    hooks:
+      - id: hadolint
+        args:
+          - --ignore=DL3025
+
+# java
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.12.0
+    hooks:
+      - id: pretty-format-java
+        args: [--autofix]
+
+# kotlin
+      - id: pretty-format-kotlin
+        args: [--autofix]
 
 # javascript
--   repo: https://github.com/pre-commit/mirrors-fixmyjs
+  - repo: https://github.com/pre-commit/mirrors-fixmyjs
     rev: v2.0.0
     hooks:
-    -   id: fixmyjs
-# TODO: enable me
-# -   repo: https://github.com/pre-commit/mirrors-jshint
+      - id: fixmyjs
+        exclude: '(.*.min.js)'
+# TODO: fixme
+#   - repo: https://github.com/pre-commit/mirrors-jshint
 #     rev: v2.13.6
 #     hooks:
-#     -   id: jshint
+#       - id: jshint
+#         exclude: '(.*.min.js)'
+
+# terraform
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.86.0
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+
+# shell
+  - repo: https://github.com/lovesegfault/beautysh
+    rev: v6.2.1
+    hooks:
+      - id: beautysh
+  - repo: https://github.com/openstack/bashate
+    rev: 2.1.1
+    hooks:
+      - id: bashate
+        args: [--max-line-length=80]
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: script-must-not-have-extension
