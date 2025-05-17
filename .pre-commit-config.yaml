@@ -92,6 +92,7 @@ repos:
     hooks:
       - id: mypy
         require_serial: True
+        language: python
         # N.B. mypy requires an installed version of whatever third-party
         # library it is asked to check against. In practice, that means
         # whenever we see an error telling us to do so, we should add the
@@ -108,6 +109,7 @@ repos:
     rev: v1.5.0
     hooks:
       - id: yesqa
+        language: python
         # N.B. keep these in sync with flake8, otherwise yesqa will remove
         # required noqa's related to these plugins
         additional_dependencies: &flake8deps
@@ -132,6 +134,7 @@ repos:
     rev: 7.0.0
     hooks:
       - id: flake8
+        language: python
         additional_dependencies: *flake8deps
         args:
           # https://www.flake8rules.com/
@@ -155,7 +158,7 @@ repos:
         entry: bash -c 'set -e; for toml in "$@"; do pushd ./${toml%pyproject.toml}; poetry check; popd; done' --
         language: python
         additional_dependencies:
-          - poetry>=1.5.0
+          - poetry==1.8.5
         pass_filenames: true
         files: 'pyproject\.toml$'
       - id: poetry-use-version-ranges
@@ -189,8 +192,9 @@ repos:
     hooks:
       - id: check-github-workflows
       - id: check-renovate
+        language: python
         additional_dependencies:
-        - pyjson5
+        - pyjson5==1.6.9
 
 # docker
   - repo: https://github.com/AleksaC/hadolint-py
