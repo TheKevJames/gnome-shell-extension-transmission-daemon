@@ -12,11 +12,11 @@ default_language_version:
 
 repos:
   - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v3.1.0
+    rev: v4.4.0
     hooks:
       - id: conventional-pre-commit
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: check-case-conflict
       - id: check-executables-have-shebangs
@@ -44,18 +44,17 @@ repos:
       - id: name-tests-test
       - id: requirements-txt-fixer
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.0.3
+    rev: v4.0.5
     hooks:
-    # TODO: pylint-import-modules support for pylint v3 (or alternative linter)
       - id: pylint
         args:
           - --load-plugins=pylint.extensions.mccabe
           - --max-complexity=10
           - --max-line-length=79
           - --max-module-lines=500
+          - --max-positional-arguments=10
           - --max-args=10
           - --score=n
-          # TODO: narrow these down
           - -d broad-except
           - -d duplicate-code
           - -d fixme
@@ -68,27 +67,27 @@ repos:
           - -d ungrouped-imports  # conflicts with reorder-python-imports
           - -d wrong-import-order  # conflicts with reorder-python-imports
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.4
+    rev: v1.5.6
     hooks:
       - id: remove-crlf
       - id: remove-tabs
         exclude: 'Makefile'
   - repo: https://github.com/asottile/reorder-python-imports
-    rev: v3.12.0
+    rev: v3.16.0
     hooks:
       - id: reorder-python-imports
         args: [--py311-plus]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args: [--py311-plus]
   - repo: https://github.com/asottile/add-trailing-comma
-    rev: v3.1.0
+    rev: v4.0.0
     hooks:
       - id: add-trailing-comma
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.19.1
     hooks:
       - id: mypy
         require_serial: True
@@ -113,14 +112,24 @@ repos:
         # N.B. keep these in sync with flake8, otherwise yesqa will remove
         # required noqa's related to these plugins
         additional_dependencies: &flake8deps
-        - flake8-2020==1.8.1
-        - flake8-broken-line==1.0.0
-        - flake8-builtins==2.2.0
-        - flake8-commas==2.1.0
-        - flake8-comprehensions==3.14.0
-        - flake8-typing-imports==1.15.0
+          - flake8-2020==1.8.1
+          - flake8-broken-line==1.0.0
+          - flake8-builtins==3.1.0
+          - flake8-complicated-walrus==2.1.0
+          - flake8-comprehensions==3.17.0
+          - flake8-import-restrictions==2.1
+  - repo: https://github.com/guilatrova/tryceratops
+    rev: v2.4.1
+    hooks:
+      - id: tryceratops
+        args:
+          - --autofix
+          - -iTRY003
+          - -iTRY100
+          - -iTRY101
+          - -iTRY301
   - repo: https://github.com/hhatto/autopep8
-    rev: v2.0.4
+    rev: v2.3.2
     hooks:
       - id: autopep8
         args: [-a, -i, -p2]
@@ -131,20 +140,20 @@ repos:
         args:
           - --ignore=D1,D203,D205,D212,D400,D401,D404,D407,D412,D413
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.0.0
+    rev: 7.3.0
     hooks:
       - id: flake8
-        language: python
         additional_dependencies: *flake8deps
         args:
           # https://www.flake8rules.com/
           # E501: Line too long. Covered by autopep8.
           # E741: Do not use variables named 'I', 'O', or 'l'.
           # W503: Line break occurred before a binary operator. Breaks PEP8.
-          - --ignore=E501,E741,W503
-          - --min-python-version=3.11
+          # IMR200: Imports should only happen on module level, not locally. Covered by pylint.
+          # IMR241: When using 'from', import submodules not elements.
+          - --ignore=E501,E741,W503,IMR200,IMR241
   - repo: https://github.com/dosisod/refurb
-    rev: v1.27.0
+    rev: v2.3.0
     hooks:
       - id: refurb
         args:
@@ -158,16 +167,24 @@ repos:
         entry: bash -c 'set -e; for toml in "$@"; do pushd ./${toml%pyproject.toml}; poetry check; popd; done' --
         language: python
         additional_dependencies:
-          - poetry==1.8.5
+          - poetry==2.3.2
         pass_filenames: true
         files: 'pyproject\.toml$'
-      - id: poetry-use-version-ranges
+      - id: pyproject-use-version-ranges
         name: avoid using carets for version ranges
         description: 'Avoid using carets for version ranges'
         entry: '\^'
         language: pygrep
         types: [toml]
         files: 'pyproject.toml$'
+      - id: pyproject-no-unpinned-git-deps
+        name: disallow git dependencies without rev/tag
+        description: 'Disallow Poetry/PDM git dependencies unless they are pinned with a rev or tag on the same line'
+        # Flags lines that contain `git = "..."` but do NOT also contain `rev =` or `tag =`.
+        entry: '^(?!\s*#)(?=[^#]*\bgit\s*=\s*"[^"]+")(?![^#]*\b(?:rev|tag)\s*=).*$'
+        language: pygrep
+        types: [toml]
+        files: 'pyproject\.toml$'
       - id: pytest-fixtures-require-scope
         name: ensure pytest fixture scopes are explicitly set
         description: 'Ensure we explicitly set pytest fixture scopes'
@@ -188,17 +205,18 @@ repos:
 
 # json
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.27.3
+    rev: 0.36.2
     hooks:
+      - id: check-circle-ci
       - id: check-github-workflows
       - id: check-renovate
         language: python
         additional_dependencies:
-        - pyjson5==1.6.9
+          - pyjson5==2.0.0
 
 # docker
   - repo: https://github.com/AleksaC/hadolint-py
-    rev: v2.12.0.2
+    rev: v2.14.0
     hooks:
       - id: hadolint
         args:
@@ -206,7 +224,7 @@ repos:
 
 # java
   - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-    rev: v2.12.0
+    rev: v2.16.0
     hooks:
       - id: pretty-format-java
         args: [--autofix]
@@ -215,38 +233,21 @@ repos:
       - id: pretty-format-kotlin
         args: [--autofix]
 
-# javascript
-  - repo: https://github.com/pre-commit/mirrors-fixmyjs
-    rev: v2.0.0
-    hooks:
-      - id: fixmyjs
-        exclude: '(.*.min.js)'
-# TODO: fixme
-#   - repo: https://github.com/pre-commit/mirrors-jshint
-#     rev: v2.13.6
-#     hooks:
-#       - id: jshint
-#         exclude: '(.*.min.js)'
-
 # terraform
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.86.0
+    rev: v1.105.0
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
 
 # shell
-  - repo: https://github.com/lovesegfault/beautysh
-    rev: v6.2.1
-    hooks:
-      - id: beautysh
   - repo: https://github.com/openstack/bashate
     rev: 2.1.1
     hooks:
       - id: bashate
         args: [--max-line-length=80]
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.9.0.6
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
