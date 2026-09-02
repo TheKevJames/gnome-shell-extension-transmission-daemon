@@ -1,20 +1,23 @@
 ci:
     autofix_commit_msg: 'refactor(lint): apply automatic lint fixes'
     autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
-    skip: [terraform_fmt, terraform_validate]
 
 default_install_hook_types:
   - commit-msg
   - pre-commit
 
 default_language_version:
-    python: python3.11
+    python: python3.14
 
 repos:
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.4.0
     hooks:
       - id: conventional-pre-commit
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -36,20 +39,15 @@ repos:
       - id: trailing-whitespace
 
 # python
-      - id: check-ast
       - id: check-builtin-literals
       - id: check-docstring-first
-      - id: debug-statements
-      - id: double-quote-string-fixer
       - id: name-tests-test
       - id: requirements-txt-fixer
   - repo: https://github.com/PyCQA/pylint
-    rev: v4.0.5
+    rev: v4.0.8
     hooks:
       - id: pylint
         args:
-          - --load-plugins=pylint.extensions.mccabe
-          - --max-complexity=10
           - --max-line-length=79
           - --max-module-lines=500
           - --max-positional-arguments=10
@@ -64,30 +62,16 @@ repos:
           - -d missing-docstring
           - -d too-few-public-methods
           - -d try-except-raise
-          - -d ungrouped-imports  # conflicts with reorder-python-imports
-          - -d wrong-import-order  # conflicts with reorder-python-imports
+          - -d ungrouped-imports  # conflicts with ruff isort
+          - -d wrong-import-order  # conflicts with ruff isort
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.5.6
     hooks:
       - id: remove-crlf
       - id: remove-tabs
         exclude: 'Makefile'
-  - repo: https://github.com/asottile/reorder-python-imports
-    rev: v3.16.0
-    hooks:
-      - id: reorder-python-imports
-        args: [--py311-plus]
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.2
-    hooks:
-      - id: pyupgrade
-        args: [--py311-plus]
-  - repo: https://github.com/asottile/add-trailing-comma
-    rev: v4.0.0
-    hooks:
-      - id: add-trailing-comma
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.1
+    rev: v2.3.1
     hooks:
       - id: mypy
         require_serial: True
@@ -104,61 +88,71 @@ repos:
           - --strict
           - --strict-equality
           - --warn-unreachable
-  - repo: https://github.com/asottile/yesqa
-    rev: v1.5.0
-    hooks:
-      - id: yesqa
-        language: python
-        # N.B. keep these in sync with flake8, otherwise yesqa will remove
-        # required noqa's related to these plugins
-        additional_dependencies: &flake8deps
-          - flake8-2020==1.8.1
-          - flake8-broken-line==1.0.0
-          - flake8-builtins==3.1.0
-          - flake8-complicated-walrus==2.1.0
-          - flake8-comprehensions==3.17.0
-          - flake8-import-restrictions==2.1
-  - repo: https://github.com/guilatrova/tryceratops
-    rev: v2.4.1
-    hooks:
-      - id: tryceratops
-        args:
-          - --autofix
-          - -iTRY003
-          - -iTRY100
-          - -iTRY101
-          - -iTRY301
-  - repo: https://github.com/hhatto/autopep8
-    rev: v2.3.2
-    hooks:
-      - id: autopep8
-        args: [-a, -i, -p2]
-  - repo: https://github.com/PyCQA/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        args:
-          - --ignore=D1,D203,D205,D212,D400,D401,D404,D407,D412,D413
   - repo: https://github.com/PyCQA/flake8
     rev: 7.3.0
     hooks:
       - id: flake8
-        additional_dependencies: *flake8deps
+        language: python
+        additional_dependencies:
+          - flake8-broken-line==1.0.0
+          - flake8-complicated-walrus==2.1.0
+          - flake8-import-restrictions==2.1
         args:
           # https://www.flake8rules.com/
-          # E501: Line too long. Covered by autopep8.
-          # E741: Do not use variables named 'I', 'O', or 'l'.
-          # W503: Line break occurred before a binary operator. Breaks PEP8.
+          # Restrict flake8 to plugins with no ruff equivalent; core
+          # pyflakes/pycodestyle (E/W/F) are handled by ruff.
+          # FCW: flake8-complicated-walrus
+          # IMR: flake8-import-restrictions
+          # N400: flake8-broken-line
           # IMR200: Imports should only happen on module level, not locally. Covered by pylint.
           # IMR241: When using 'from', import submodules not elements.
-          - --ignore=E501,E741,W503,IMR200,IMR241
+          - --select=FCW,IMR,N400
+          - --ignore=IMR200,IMR241
+  # TODO: use ruff once more refurb ruloes are out of preview
   - repo: https://github.com/dosisod/refurb
-    rev: v2.3.0
+    rev: v2.3.1
     hooks:
       - id: refurb
         args:
           - --python-version
           - '3.11'
+  # TODO: add more rules from https://docs.astral.sh/ruff/rules/
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.5
+    hooks:
+      - id: ruff
+        args:
+          - --fix
+          - --target-version
+          - py311
+          - --select
+          - A,C4,C901,D,E,F,G010,I,RUF006,RUF100,S307,T10,TRY,UP,W,YTT
+          - --config
+          - lint.mccabe.max-complexity = 10
+          # Codes owned by flake8 plugins with no ruff equivalent; keeps
+          # RUF100 from stripping their noqa directives.
+          - --config
+          - lint.external = ['N400', 'FCW', 'IMR']
+          - --config
+          - lint.isort.force-single-line = true
+          # D1,D203,D205,D212,D400,D401,D404,D407,D412,D413: pydocstyle opinions.
+          # E501: Line too long. Covered by ruff format.
+          # E741: Do not use variables named 'I', 'O', or 'l'.
+          # TRY003: Avoid long messages outside the exception class.
+          # TRY301: Abstract raise to an inner function.
+          - --ignore
+          - D1,D203,D205,D212,D400,D401,D404,D407,D412,D413,E501,E741,TRY003,TRY301
+      - id: ruff-format
+        args:
+          - --config
+          - line-length = 79
+          - --config
+          - format.quote-style = 'single'
+          - --config
+          - format.skip-magic-trailing-comma = true
+          # Silence the isort/formatter magic-comma incompatibility warning.
+          - --config
+          - lint.isort.split-on-trailing-comma = false
   - repo: local
     hooks:
       - id: poetry-check
@@ -167,7 +161,7 @@ repos:
         entry: bash -c 'set -e; for toml in "$@"; do pushd ./${toml%pyproject.toml}; poetry check; popd; done' --
         language: python
         additional_dependencies:
-          - poetry==2.3.2
+          - poetry==2.4.2
         pass_filenames: true
         files: 'pyproject\.toml$'
       - id: pyproject-use-version-ranges
@@ -194,8 +188,6 @@ repos:
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
-      - id: python-no-eval
-      - id: python-no-log-warn
       - id: python-use-type-annotations
 
 # rst
@@ -205,14 +197,14 @@ repos:
 
 # json
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.36.2
+    rev: 0.38.0
     hooks:
       - id: check-circle-ci
       - id: check-github-workflows
       - id: check-renovate
         language: python
         additional_dependencies:
-          - pyjson5==2.0.0
+          - pyjson5==2.0.1
 
 # docker
   - repo: https://github.com/AleksaC/hadolint-py
@@ -234,11 +226,18 @@ repos:
         args: [--autofix]
 
 # terraform
-  - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.105.0
+  - repo: https://github.com/AleksaC/terraform-py
+    rev: v1.16.1
     hooks:
-      - id: terraform_fmt
-      - id: terraform_validate
+      - id: tf-validate
+  - repo: https://github.com/AleksaC/tffumpt
+    rev: v0.1.1
+    hooks:
+      - id: tffumpt
+  - repo: https://github.com/AleksaC/tflint-py
+    rev: v0.64.0
+    hooks:
+      - id: tflint
 
 # shell
   - repo: https://github.com/openstack/bashate
@@ -247,7 +246,7 @@ repos:
       - id: bashate
         args: [--max-line-length=80]
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1
+    rev: v0.11.0.1-1
     hooks:
       - id: shellcheck
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
