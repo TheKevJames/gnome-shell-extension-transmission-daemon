@@ -1,0 +1,14 @@
+name: ci
+
+on: [pull_request, push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: j178/prek-action@v3.0.0
+        with:
+          # renovate: datasource=pypi depName=prek
+          prek-version: 0.5.2
+          extra-args: --all-files
