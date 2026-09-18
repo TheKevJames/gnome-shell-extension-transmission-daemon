@@ -4,7 +4,7 @@ gnome-shell-extension-transmission-daemon
     **Note:** This project is no longer maintained, sorry!
 
     When archiving this repo, I also archived still-open issues: if you're
-    interested in forking, please consider #1, #2, and #24.
+    interested in forking, please consider `#1`_, `#2`_, and `#24`_.
 
 This is a Gnome Shell extension for monitoring a transmission-daemon or GTK app
 using its RPC interface.
@@ -78,6 +78,9 @@ Pretty Pictures
 .. image:: docs/screenshot-filter.png
    :alt: Filter Torrents by State
 
+.. _#1: https://github.com/TheKevJames/gnome-shell-extension-transmission-daemon/issues/1
+.. _#2: https://github.com/TheKevJames/gnome-shell-extension-transmission-daemon/issues/2
+.. _#24: https://github.com/TheKevJames/gnome-shell-extension-transmission-daemon/issues/24
 .. _@eonpatapon: https://github.com/eonpatapon
 .. _GNOME Extensions Page: https://extensions.gnome.org/extension/365/transmission-daemon-indicator/
 .. _Transmission wiki: https://github.com/transmission/transmission/wiki/Editing-Configuration-Files
