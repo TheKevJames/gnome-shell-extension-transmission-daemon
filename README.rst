@@ -1,6 +1,13 @@
 gnome-shell-extension-transmission-daemon
 =========================================
 
+.. note::
+
+    This project is no longer maintained, sorry!
+
+    When archiving this repo, I also archived still-open issues: if you're
+    interested in forking, please consider #1, #2, and #24.
+
 This is a Gnome Shell extension for monitoring a transmission-daemon or GTK app
 using its RPC interface.
 
