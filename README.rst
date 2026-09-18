@@ -1,9 +1,7 @@
 gnome-shell-extension-transmission-daemon
 =========================================
 
-.. note::
-
-    This project is no longer maintained, sorry!
+    **Note:** This project is no longer maintained, sorry!
 
     When archiving this repo, I also archived still-open issues: if you're
     interested in forking, please consider #1, #2, and #24.
